@@ -9,6 +9,8 @@ import it.unibo.spe.mdd.sheduler.sheduler.*;
 import org.eclipse.xtext.validation.Check;
 import org.eclipse.xtext.validation.CheckType;
 
+import java.time.DateTimeException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -46,30 +48,63 @@ public class ShedulerValidator extends AbstractShedulerValidator {
 
     @Check
     public void checkRelativeTimeIsRepresentable(RelativeTime relativeTime) {
-        // TODO Ex 1.1a: convert relativeTime into a java.time.Duration via TimeUtils.toDuration
-        // TODO Ex 1.1b: the runtime will need it in milliseconds: also call .toMillis() on it
-        // TODO Ex 1.1c: if any of the two throws ArithmeticException (overflow), report a warning on
+
+        // DONE Ex 1.1a: convert relativeTime into a java.time.Duration via TimeUtils.toDuration
+        // DONE Ex 1.1b: the runtime will need it in milliseconds: also call .toMillis() on it
+        // DONE Ex 1.1c: if any of the two throws ArithmeticException (overflow), report a warning on
         //               ShedulerPackage.Literals.RELATIVE_TIME__TIME_SPANS, whose message contains "not representable"
         //               (try it with `in 2147483647 years`)
+        try{
+            TimeUtils.toDuration(relativeTime).toMillis();
+        } catch (ArithmeticException ae) {
+            warning("not representable", relativeTime, ShedulerPackage.Literals.RELATIVE_TIME__TIME_SPANS);
+        }
+
     }
 
     @Check
     public void checkAbsoluteTimeIsRepresentable(AbsoluteTime absoluteTime) {
-        // TODO Ex 1.2a: convert absoluteTime into a java.time.LocalDateTime via TimeUtils.toLocalDateTime
-        // TODO Ex 1.2b: beware, LocalDateTime.of throws java.time.DateTimeException (NOT ArithmeticException)
+
+        // DONE Ex 1.2a: convert absoluteTime into a java.time.LocalDateTime via TimeUtils.toLocalDateTime
+        // DONE 1.2b: beware, LocalDateTime.of throws java.time.DateTimeException (NOT ArithmeticException)
         //               for invalid dates (e.g. 2030/02/31) or out-of-range years: catch it
-        // TODO Ex 1.2c: the runtime turns it into a delay from now: Duration.between(LocalDateTime.now(), ...).toMillis()
+
+        // DONE Ex 1.2c: the runtime turns it into a delay from now: Duration.between(LocalDateTime.now(), ...).toMillis()
         //               may overflow too (ArithmeticException)
-        // TODO Ex 1.2d: in all such cases, report a warning on ShedulerPackage.Literals.ABSOLUTE_TIME__DATE,
+        // DONE Ex 1.2d: in all such cases, report a warning on ShedulerPackage.Literals.ABSOLUTE_TIME__DATE,
         //               whose message contains "not representable"
+
+        try{
+            LocalDateTime localDateTime = TimeUtils.toLocalDateTime(absoluteTime);
+            Duration.between(LocalDateTime.now(), localDateTime).toMillis();
+        } catch(DateTimeException dte){
+            warning("not representable : invalid date or out-of-range", absoluteTime, ShedulerPackage.Literals.ABSOLUTE_TIME__DATE);
+        } catch(ArithmeticException ae){
+            warning("not representable : delay overflow", absoluteTime, ShedulerPackage.Literals.ABSOLUTE_TIME__DATE);
+        }
+
     }
 
     @Check
     public void checkAbsoluteTimeIsInTheFuture(AbsoluteTime absoluteTime) {
-        // TODO Ex 1.3a: convert absoluteTime via TimeUtils.toLocalDateTime, and simply return on DateTimeException
+        // DONE Ex 1.3a: convert absoluteTime via TimeUtils.toLocalDateTime, and simply return on DateTimeException
         //               (invalid dates are already reported by other rules)
-        // TODO Ex 1.3b: if it is NOT after LocalDateTime.now() (i.e. past or present), report a warning
+        // DONE Ex 1.3b: if it is NOT after LocalDateTime.now() (i.e. past or present), report a warning
         //               on ShedulerPackage.Literals.ABSOLUTE_TIME__TIME, whose message contains "future"
+
+        LocalDateTime localDateTime;
+
+        try{
+            localDateTime = TimeUtils.toLocalDateTime(absoluteTime);
+        }catch(DateTimeException dte){
+            return; //già gestita
+        }
+
+        if(!localDateTime.isAfter(LocalDateTime.now())){
+            warning("future", absoluteTime, ShedulerPackage.Literals.ABSOLUTE_TIME__TIME);
+        }
+
+
     }
 
     @Check(CheckType.FAST)
