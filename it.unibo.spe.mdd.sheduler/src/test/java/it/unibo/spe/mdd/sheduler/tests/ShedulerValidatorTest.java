@@ -29,37 +29,37 @@ class ShedulerValidatorTest {
         return parseHelper.parse("pool { schedule task x { command \"c\" " + timing + " } }");
     }
 
-    @Disabled("TODO Ex 1.1: remove this line once done")
+    //@Disabled("TODO Ex 1.1: remove this line once done")
     @Test
     void relativeTimeNotRepresentable() throws Exception {
         helper.assertWarning(task("in 2147483647 years"), RELATIVE_TIME, null, "not representable");
     }
 
-    @Disabled("TODO Ex 1.2: remove this line once done")
+    //@Disabled("TODO Ex 1.2: remove this line once done")
     @Test
     void absoluteTimeNotRepresentable() throws Exception {
         helper.assertWarning(task("at 2030/02/31 10:00"), ABSOLUTE_TIME, null, "not representable");
     }
 
-    @Disabled("TODO Ex 1.3: remove this line once done")
+    //@Disabled("TODO Ex 1.3: remove this line once done")
     @Test
     void absoluteTimeInThePast() throws Exception {
         helper.assertWarning(task("at 2000/01/01 10:00"), ABSOLUTE_TIME, null, "future");
     }
 
-    @Disabled("TODO Ex 1.3 (handle DateTimeException): remove this line once done")
+    //@Disabled("TODO Ex 1.3 (handle DateTimeException): remove this line once done")
     @Test
     void invalidDateDoesNotBreakValidation() throws Exception {
         helper.assertError(task("at 2030/13/01 10:00"), DATE, null, "Month");
     }
 
-    @Disabled("TODO Ex 1.4: remove this line once done")
+    //@Disabled("TODO Ex 1.4: remove this line once done")
     @Test
     void invalidClockTime() throws Exception {
         helper.assertError(task("at 2099/01/01 25:00"), CLOCK_TIME, null, "Hour");
     }
 
-    @Disabled("TODO Ex 1.5: remove this line once done")
+    //@Disabled("TODO Ex 1.5: remove this line once done")
     @Test
     void zeroDuration() throws Exception {
         helper.assertError(task("in 0 s"), TIME_SPAN, null, "strictly positive");
@@ -70,19 +70,19 @@ class ShedulerValidatorTest {
         helper.assertNoErrors(task("in 1 s repeat every 48 hours"));
     }
 
-    @Disabled("TODO Ex 1.6: remove this line once done")
+    //@Disabled("TODO Ex 1.6: remove this line once done")
     @Test
     void repeatedTaskName() throws Exception {
         helper.assertError(parseHelper.parse("pool { " + t("x") + t("x") + "}"), TASK, null, "Repeated task ID");
     }
 
-    @Disabled("TODO Ex 1.7: remove this line once done")
+    //@Disabled("TODO Ex 1.7: remove this line once done")
     @Test
     void repeatedPoolName() throws Exception {
         helper.assertError(parseHelper.parse("pool p { " + t("x") + "} pool p { " + t("other") + "}"), TASK_POOL, null, "Repeated pool ID");
     }
 
-    @Disabled("TODO Ex 1.8: remove this line once done")
+    //@Disabled("TODO Ex 1.8: remove this line once done")
     @Test
     void dependentTaskCannotBePeriodic() throws Exception {
         var model = parseHelper.parse("pool { " + t("a") + "schedule task b { command \"c\" after a repeat every 1 h } }");

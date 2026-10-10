@@ -110,36 +110,92 @@ public class ShedulerValidator extends AbstractShedulerValidator {
     @Check(CheckType.FAST)
     public void ensureClockTimeIsValid(ClockTime clockTime) {
         // NOTE: INT cannot be negative in the grammar, so you only need upper bounds
-        // TODO Ex 1.4a: error on CLOCK_TIME__HOUR if hour > 23 (message starting with "Hour")
-        // TODO Ex 1.4b: error on CLOCK_TIME__MINUTE if minute > 59
-        // TODO Ex 1.4c: error on CLOCK_TIME__SECOND if second > 59
-        // TODO Ex 1.4d: error on CLOCK_TIME__MILLISECOND if millisecond > 999
-        // TODO Ex 1.4e: error on CLOCK_TIME__NANOSECOND if nanosecond > 999
+        // DONE Ex 1.4a: error on CLOCK_TIME__HOUR if hour > 23 (message starting with "Hour")
+        // DONE Ex 1.4b: error on CLOCK_TIME__MINUTE if minute > 59
+        // DONE Ex 1.4c: error on CLOCK_TIME__SECOND if second > 59
+        // DONE Ex 1.4d: error on CLOCK_TIME__MILLISECOND if millisecond > 999
+        // DONE Ex 1.4e: error on CLOCK_TIME__NANOSECOND if nanosecond > 999
+
+        if(clockTime.getHour() > 23){
+            error("Hour", clockTime, ShedulerPackage.Literals.CLOCK_TIME__HOUR);
+        }
+
+        if(clockTime.getMinute() > 59){
+            error("Minute", clockTime, ShedulerPackage.Literals.CLOCK_TIME__MINUTE);
+        }
+
+        if(clockTime.getSecond() > 59){
+            error("Second", clockTime, ShedulerPackage.Literals.CLOCK_TIME__SECOND);
+        }
+
+        if(clockTime.getMillisecond() > 999){
+            error("Millisecond", clockTime, ShedulerPackage.Literals.CLOCK_TIME__MILLISECOND);
+        }
+
+        if(clockTime.getNanosecond() > 999){
+            error("Nanosecond", clockTime, ShedulerPackage.Literals.CLOCK_TIME__NANOSECOND);
+        }
+
     }
 
     @Check(CheckType.FAST)
     public void ensureTimeSpanIsValid(TimeSpan timeSpan) {
-        // TODO Ex 1.5: error on TIME_SPAN__DURATION if the duration is zero or negative
+        // DONE Ex 1.5: error on TIME_SPAN__DURATION if the duration is zero or negative
         //              (message containing "strictly positive")
-        //              NOTE: do not add upper bounds, `repeat every 48 hours` is perfectly fine
+        // NOTE: do not add upper bounds, `repeat every 48 hours` is perfectly fine
+
+        if(timeSpan.getDuration() <= 0){
+            error("strictly positive", timeSpan, ShedulerPackage.Literals.TIME_SPAN__DURATION);
+        }
+
     }
 
     @Check(CheckType.FAST)
     public void ensureTaskNamesAreUniqueWithinPool(TaskPool pool) {
-        // TODO Ex 1.6a: iterate over pool.getTasks(), skipping anonymous ones (getName() == null)
-        // TODO Ex 1.6b: keep the names seen so far in a Set<String> (hint: Set.add returns false for duplicates)
-        // TODO Ex 1.6c: error on the duplicate task, feature TASK__NAME, message "Repeated task ID: <name>"
+        // DONE Ex 1.6a: iterate over pool.getTasks(), skipping anonymous ones (getName() == null)
+        // DONE Ex 1.6b: keep the names seen so far in a Set<String> (hint: Set.add returns false for duplicates)
+        // DONE Ex 1.6c: error on the duplicate task, feature TASK__NAME, message "Repeated task ID: <name>"
+
+        Set<String> uniqueTasks = new HashSet<>();
+
+        for(Task t : pool.getTasks()){
+            if( t.getName() != null){
+                uniqueTasks.add(t.getName());
+            } else{
+                error("Repeated task ID : " + t.getName(), pool, ShedulerPackage.Literals.TASK__NAME);
+            }
+        }
+
     }
 
     @Check(CheckType.FAST)
     public void ensurePoolNamesAreUniqueWithinPool(TaskPoolSet pools) {
-        // TODO Ex 1.7: same as Ex 1.6, but for pools (feature TASK_POOL__NAME, message "Repeated pool ID: <name>")
+        // DONE Ex 1.7: same as Ex 1.6, but for pools (feature TASK_POOL__NAME, message "Repeated pool ID: <name>")
+
+        Set<String> uniqueTasks = new HashSet<>();
+
+        for(TaskPool tp : pools.getPools()){
+            if( tp.getName() != null){
+                uniqueTasks.add(tp.getName());
+            } else{
+                error("Repeated task ID : " + tp.getName(), pools, ShedulerPackage.Literals.TASK__NAME);
+            }
+        }
     }
 
     @Check(CheckType.FAST)
     public void ensureDependentTasksAreNotPeriodic(Task task) {
-        // TODO Ex 1.8: error on TASK__PERIOD if the task is scheduled before/after another task
+        // DONE Ex 1.8: error on TASK__PERIOD if the task is scheduled before/after another task
         //              (getBefore() or getAfter() not null) AND it has a period (message containing "cannot be periodic")
+
+        if(task.getPeriod() != null){
+
+            if(task.getBefore() != null || task.getAfter() != null){
+                error("Task scheduled before or after another tasks can't be periodic", task, ShedulerPackage.Literals.TASK__PERIOD);
+            }
+
+        }
+
     }
 
     @Check
